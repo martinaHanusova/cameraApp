@@ -45,11 +45,11 @@ public class MainActivity extends AppCompatActivity {
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                System.out.println("Nepodarilo se vytvorit ImageFile");
             }
             if (photoFile != null) {
                 String authorities = getApplicationContext().getPackageName() + ".fileprovider";
                 Uri photoUri = FileProvider.getUriForFile(this, authorities, photoFile);
+                takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
@@ -57,13 +57,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+        System.out.println(timeStamp);
         String imageFileName = "JPEG_" + timeStamp;
-        //File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        System.out.println(storageDir);
-        //File image = new File(storageDir, imageFileName + ".jpg");
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = new File(storageDir, imageFileName + ".jpg");
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Log.i("Result ok", "Result is ok");
+            Log.i("result is ok", "Result code is -1");
             setPic();
             galleryAddPic();
         } else {
@@ -93,7 +91,9 @@ public class MainActivity extends AppCompatActivity {
     private void setPic() {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
+        System.out.println(targetW);
         int targetH = imageView.getHeight();
+        System.out.println(targetH);
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -113,6 +113,5 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         imageView.setImageBitmap(bitmap);
     }
-
 
 }
